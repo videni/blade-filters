@@ -4,6 +4,8 @@ namespace Pine\BladeFilters;
 
 class BladeFiltersCompiler
 {
+    protected static $containers = [];
+
     /**
      * Compile the echo statements.
      *
@@ -35,19 +37,29 @@ class BladeFiltersCompiler
             return $value;
         }
 
+
         $wrapped = '';
 
         foreach ($filters as $key => $filter) {
             $filter = preg_split('/:(?=(?:[^\'\"\`]*([\'\"\`])[^\'\"\`]*\1)*[^\'\"\`]*$)/u', trim($filter));
 
+            $filterName =  $filter[0];
+
+            $containered = isset(self::$containers[$filterName]) ? call_user_func(self::$containers[$filterName], $filterName): BladeFilters::class.'::';
+
             $wrapped = sprintf(
-                '\Pine\BladeFilters\BladeFilters::%s(%s%s)',
-                $filter[0],
+                $containered.'%s(%s%s)',
+                $filterName,
                 $key === 0 ? trim(str_replace($matches[0], '', $value)) : $wrapped,
                 isset($filter[1]) ? ",{$filter[1]}" : ''
             );
         }
 
         return $wrapped;
+    }
+
+    public static function extend($name, callable $container)
+    {
+        self::$containers[$name] = $container;
     }
 }
