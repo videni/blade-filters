@@ -35,7 +35,7 @@ class BladeFilterParser
         }
 
         return [
-            'prefitered' => $prefiltered,
+            'prefiltered' => $prefiltered,
             'filters' => $filters
         ];
     }

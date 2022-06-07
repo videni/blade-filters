@@ -63,7 +63,7 @@ Uncommonly, your filter may be context aware, let's assume a context like this:
 
 A filter named `cdn_url` which generated url for an asset. 
 ```php
-cdn_url('assets/carosel.css');
+cdn_url('assets/carousel.css');
 ```
 the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter, which the user doesn't need to worry about. you can always pass a variable to your filter as an argument following [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone), this is the difference between `filter context` and `filter argument`. 
 

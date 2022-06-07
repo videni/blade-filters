@@ -43,7 +43,7 @@ class BladeFiltersCompiler
             return $value;
         }
 
-        $prefitered = $filterExpression['prefitered'];
+        $prefiltered = $filterExpression['prefiltered'];
         $filters = $filterExpression['filters'];
 
         $wrapped = '';
@@ -52,7 +52,7 @@ class BladeFiltersCompiler
         $wrapped = sprintf(
             $this->getContainer($first['name']).'%s(%s,%s)',
             $first['name'],
-            $prefitered,
+            $prefiltered,
             $this->stringifyArguments($first['name'], $first['arguments'])
         );
 

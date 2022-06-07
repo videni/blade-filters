@@ -18,7 +18,7 @@ class BladeFilterParserTest extends TestCase
 
         $filter = $parser->parse($input);
 
-        $this->assertEquals($filter['prefitered'], '"css/carousel.css"');
+        $this->assertEquals($filter['prefiltered'], '"css/carousel.css"');
         $this->assertTrue(count($filter['filters']) == 2);
     }
 
@@ -31,7 +31,7 @@ class BladeFilterParserTest extends TestCase
 
          $filter = $parser->parse($input);
 
-         $this->assertEquals($filter['prefitered'], '"css/carousel.css"');
+         $this->assertEquals($filter['prefiltered'], '"css/carousel.css"');
          $this->assertTrue(count($filter['filters']) == 1);
      }
 
@@ -46,7 +46,7 @@ class BladeFilterParserTest extends TestCase
 
          $filter = $parser->parse($input);
 
-         $this->assertEquals($filter['prefitered'], '"css/carousel.css"');
+         $this->assertEquals($filter['prefiltered'], '"css/carousel.css"');
          $this->assertTrue(count($filter['filters']) == 1);
      }
 }
