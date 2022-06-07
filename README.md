@@ -65,7 +65,7 @@ A filter named `cdn_url` which generated url for an asset.
 ```php
 cdn_url('assets/carosel.css');
 ```
-the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter, the user doen't need to worry about. this is the difference with `filter argument`. you can always pass a variable to your filter as an argument as [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone).
+the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter about which the user doesn't need to worry. you can always pass a variable to your filter as an argument following [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone), this is the difference between `filter context` and `filter argument`. 
 
 ## Internal filters
 
