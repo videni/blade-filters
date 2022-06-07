@@ -75,18 +75,11 @@ class BladeFiltersCompiler
     {
         foreach($this->registry->all() as $filterProvider) {
             if ($filterProvider->hasFilter($filterName)) {
-                $argumentNames = $filterProvider->getFilterArgumentNames($filterName);
-                // Remove the first argument, because the first argument is the value being filtered.
-                array_shift($argumentNames);
-                // Fill argument values
-                $argumentNames = array_flip($argumentNames);
-
-                $arguments = array_intersect_key($arguments, $argumentNames);
-
-                return join(',', empty($arguments)? []: array_values($arguments));
+                return $filterProvider->processFilterArguments($filterName, $arguments);
             }
         }
 
+        throw new MissingBladeFilterException(sprintf('Blade filter %s not exists', $filterName));
     }
 
     private function getContainer(string $filterName): string

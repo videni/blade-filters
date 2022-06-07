@@ -26,7 +26,7 @@ composer require "videni/blade-filters": "^1.0"
 {{ 'a wonderful place' | slug:separator='_', language='en' }}
 ```
 
-For slug filter which provided by `\Illuminate\Support\Str`, the first argument is the value being filtered, the second argument would be the `separator`, the third would be `language`, if a argument name doesn't not exists in slug method of `\Illuminate\Support\Str`, it will be simply ignored.
+For slug filter which provided by `\Illuminate\Support\Str`, the first argument is the value being filtered, the second argument would be the `separator`, the third would be `language`, if a argument name doesn't not exists in the slug method of `\Illuminate\Support\Str`, it will be simply ignored.
 
 
 ## Pass variables to filter arguments

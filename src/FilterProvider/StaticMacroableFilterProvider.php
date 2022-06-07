@@ -29,7 +29,38 @@ class StaticMacroableFilterProvider implements FilterProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function getFilterArgumentNames(string $filterName): array
+    public function processFilterArguments(string $filterName, array $filterArguments): string
+    {
+        $argumentNames = $this->getFilterArgumentNames($filterName);
+
+        // Remove the first argument, because the first argument is the value being filtered.
+        array_shift($argumentNames);
+        // Fill argument values
+        $argumentNames = array_flip($argumentNames);
+
+        $arguments = array_intersect_key($filterArguments, $argumentNames);
+
+        return join(',', empty($arguments)? []: array_values($arguments));
+    }
+
+ 
+    /**
+     * {@inheritDoc}
+     */
+    public function getContainer(): string
+    {
+        return sprintf('%s::', $this->class);
+    }
+
+    /**
+     * Get filter argument names sorted in order
+     * Only used in blade compile phrase
+     *
+     * @param string $filterName
+     *
+     * @return array
+     */
+    protected function getFilterArgumentNames(string $filterName): array
     {
         $ref = new \ReflectionClass($this->class);
         $method  = null;
@@ -40,19 +71,11 @@ class StaticMacroableFilterProvider implements FilterProviderInterface
             $micros = $ref->getStaticProperties();
             $method = new \ReflectionFunction($micros['macros'][$filterName]);
         } else {
-            throw new MissingBladeFilterException(sprintf('Blade filter %s not exists', $filterName));
+            throw new MissingBladeFilterException(sprintf('Blade filter %s not exists in class %s', $filterName, $this->class));
         }
 
         return array_map(function($param) {
             return $param->name;
         }, $method->getParameters());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getContainer(): string
-    {
-        return sprintf('%s::', $this->class);
     }
 }

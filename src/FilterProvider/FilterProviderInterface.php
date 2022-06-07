@@ -13,14 +13,13 @@ interface FilterProviderInterface
     public function hasFilter(string $filterName): bool;
 
     /**
-     * Get filter argument names sorted in order
-     * Only used in blade compile phrase
+     * Process filter arguments
      *
      * @param string $filterName
-     *
-     * @return array
+     * @param array $filterArguments
+     * @return string
      */
-    public function getFilterArgumentNames(string $filterName): array;
+    public function processFilterArguments(string $filterName, array $filterArguments): string;
 
     /**
      * The stringified container for the filter to run
