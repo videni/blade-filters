@@ -17,7 +17,7 @@ Because this libary is almost refactored, this package renamed as `videni/blade-
 ## Installation
 
 ```
-composer require "videni/blade-filters": "^1.0@dev"
+composer require "videni/blade-filters": "^1.0"
 ```
 
 ## Named filter arguments
