@@ -10,9 +10,9 @@ Laravel Blade Filters
   - [Internal filters](#internal-filters)
   - [Testing](#testing)
 
-Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with huge improvements, the original doesn't support named arguments  and a context for filter to run, which are essential in my case. this libary implements a custom lexer and parser to anyalize filter syntax. 
+Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with huge improvements, the original doesn't support named arguments and filter context, which are essential in my case. this library implements a custom lexer and parser to analyze filter syntax. 
 
-Because this libary is almost refactored, this package renamed as `videni/blade-filters`, but the namespace still keeps it is.
+Because this library is almost refactored, this package renamed as `videni/blade-filters`, but the namespace still keeps it is.
 
 ## Installation
 
@@ -51,7 +51,7 @@ For the simplest case, you can add custom filter  as following
 
 You may not need this if you just want to add [simple custom filters](#add-simple-custom-filter). 
 
-The provided `StaticMacroableFilterProvider` class allows you to hook static methods and `Laravel Macroable` as Blade filters. usually, you don't need to add a `static macroable` class like  `\Illuminate\Support\Str` and `\Pine\BladeFilters\BladeFilters`, but it may be helpful, if you want to support other third party utilities class.
+The provided `StaticMacroableFilterProvider` class allows you to hook static methods and `Laravel Macroable` as Blade filters. usually, you don't need to add a `static macroable` class like  `\Illuminate\Support\Str` and `\Pine\BladeFilters\BladeFilters`, you can use `StaticMacroableFilterProvider` directly, if you want to support other third party utilities class. for example,
 
 ```
 $registry = new BladeFilterProviderRegistry();
@@ -65,7 +65,7 @@ A filter named `cdn_url` which generated url for an asset.
 ```php
 cdn_url('assets/carosel.css');
 ```
-the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter about which the user doesn't need to worry. you can always pass a variable to your filter as an argument following [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone), this is the difference between `filter context` and `filter argument`. 
+the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter, which the user doesn't need to worry about. you can always pass a variable to your filter as an argument following [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone), this is the difference between `filter context` and `filter argument`. 
 
 ## Internal filters
 
