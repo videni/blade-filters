@@ -1,1 +1,1 @@
-{{ 'risky|string:test' | finish:'|' | start:':' }}
+{{ 'risky|string:test' | finish:cap='|' | start:prefix=':' }}

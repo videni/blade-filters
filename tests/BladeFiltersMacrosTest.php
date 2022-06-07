@@ -3,6 +3,7 @@
 namespace Pine\BladeFilters\Tests;
 
 use Pine\BladeFilters\BladeFilters;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 class BladeFiltersMacrosTest extends TestCase
 {

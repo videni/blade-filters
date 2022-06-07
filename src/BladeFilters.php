@@ -2,37 +2,11 @@
 
 namespace Pine\BladeFilters;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use Pine\BladeFilters\Exceptions\MissingBladeFilterException;
 
 class BladeFilters
 {
-    use Macroable {
-        __callStatic as __baseCallStatic;
-    }
-
-    /**
-     * Dynamically handle calls to the class.
-     *
-     * @param  string  $method
-     * @param  array  $parameters
-     * @return mixed
-     *
-     * @throws \Pine\BladeFilters\Exceptions\MissingBladeFilterException
-     */
-    public static function __callStatic($method, $parameters)
-    {
-        if (static::hasMacro($method)) {
-            return static::__baseCallStatic($method, $parameters);
-        } elseif (method_exists(Str::class, $method)) {
-            return forward_static_call_array([Str::class, $method], $parameters);
-        } elseif (Str::hasMacro($method)) {
-            return forward_static_call_array([Str::class, $method], $parameters);
-        }
-
-        throw new MissingBladeFilterException($method);
-    }
+    use Macroable;
 
     /**
      * Format the string as currency.

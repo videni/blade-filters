@@ -1,15 +1,79 @@
-# Blade Filters
+Laravel Blade Filters
+======================
 
-Forked from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), comparing with the original, your can resolve filters with custom resolver.
+- [Laravel Blade Filters](#laravel-blade-filters)
+  - [Installation](#installation)
+  - [Named filter arguments](#named-filter-arguments)
+  - [Pass variables to filter arguments](#pass-variables-to-filter-arguments)
+  - [Add simple custom filter](#add-simple-custom-filter)
+  - [Filter provider](#filter-provider)
+  - [Internal filters](#internal-filters)
+  - [Testing](#testing)
 
+Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with huge improvements, the original doesn't support named arguments  and a context for filter to run, which are essential in my case. this libary implements a custom lexer and parser to anyalize filter syntax. 
+
+Because this libary is almost refactored, this package renamed as `videni/blade-filters`, but the namespace still keeps it is.
+
+## Installation
 
 ```
-    $assetContextResolver = function(){
-            return '(isset($local_asset_context)? $local_asset_context: $base_asset_context)->';
-    };
-    BladeFiltersCompiler::extend('theme_asset_url', $assetContextResolver);
-    BladeFiltersCompiler::extend('theme_asset_import', $assetContextResolver);
+composer require "videni/blade-filters": "^1.0@dev"
 ```
 
+## Named filter arguments
 
-Please check original repo for other documents.
+```
+{{ 'a wonderful place' | slug:separator='_', language='en' }}
+```
+
+For slug filter which provided by `\Illuminate\Support\Str`, the first argument is the value being filtered, the second argument would be the `separator`, the third would be `language`, if a argument name doesn't not exists in slug method of `\Illuminate\Support\Str`, it will be simply ignored.
+
+
+## Pass variables to filter arguments
+
+```
+{{ "hello world" | slug:separator=$separator }}
+```
+
+the `$separator` will be captured where the filter runs.
+
+## Add simple custom filter
+
+For the simplest case, you can add custom filter  as following
+```
+  \Pine\BladeFilters\BladeFilters::macro('script_tag', function (string $asset,$type = 'text/javascript', $async = null, $defer = null) {
+      // Your code here
+    }
+)
+```
+
+## Filter provider
+
+You may not need this if you just want to add [simple custom filters](#add-simple-custom-filter). 
+
+The provided `StaticMacroableFilterProvider` class allows you to hook static methods and `Laravel Macroable` as Blade filters. usually, you don't need to add a `static macroable` class like  `\Illuminate\Support\Str` and `\Pine\BladeFilters\BladeFilters`, but it may be helpful, if you want to support other third party utilities class.
+
+```
+$registry = new BladeFilterProviderRegistry();
+$registry
+    ->register(new StaticMacroableFilterProvider(\Illuminate\Support\Str::class), 10);
+```
+
+Uncommonly, your filter may be context aware, let's assume a context like this:
+
+A filter named `cdn_url` which generated url for an asset. 
+```php
+cdn_url('assets/carosel.css');
+```
+the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter, the user doen't need to worry about. this is the difference with `filter argument`. you can always pass a variable to your filter as an argument as [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone).
+
+## Internal filters
+
+all static methods from `Pine\BladeFilters\BladeFilters` and `\Illuminate\Support\Str` are provided as blade filters, it is quite simple, please check its source code reference.
+
+
+## Testing
+
+```
+phpunit
+```
