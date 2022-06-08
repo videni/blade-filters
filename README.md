@@ -7,14 +7,16 @@ Laravel Blade Filters
 [![stars](https://img.shields.io/github/stars/videni/blade-filters)](https://github.com/videni/blade-filters/stargazers)
 [![downloads](https://img.shields.io/packagist/dt/videni/blade-filters?style=plastic&style=flat&logo=Packagist)](https://packagist.org/packages/videni/blade-filters)
 
+
+Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with lots of improvements, the original doesn't support named arguments and filter context, which are essential in my case. this library implements a lexer and parser to analyze filter syntax. 
+
+Because this library is almost refactored and rewritten, this package renamed as `videni/blade-filters`, but the namespace still keeps it is.
+
 - [Laravel Blade Filters](#laravel-blade-filters)
   - [Installation](#installation)
-  - [Named filter arguments](#named-filter-arguments)
-  - [Pass variables to filter arguments](#pass-variables-to-filter-arguments)
-  - [Add simple custom filter](#add-simple-custom-filter)
-  - [Filter provider](#filter-provider)
   - [Using the filters](#using-the-filters)
       - [Regular usage:](#regular-usage)
+      - [Named filter arguments](#named-filter-arguments)
       - [Chained usage:](#chained-usage)
       - [Passing non-static values:](#passing-non-static-values)
       - [Passing variables as filter parameters:](#passing-variables-as-filter-parameters)
@@ -30,11 +32,10 @@ Laravel Blade Filters
       - [Trim](#trim)
       - [Ucfirst](#ucfirst)
     - [Supported built-in Str functions](#supported-built-in-str-functions)
+  - [Custom filter](#custom-filter)
+    - [Add simple custom filter](#add-simple-custom-filter)
+    - [Filter provider](#filter-provider)
   - [Testing](#testing)
-
-Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with lots of improvements, the original doesn't support named arguments and filter context, which are essential in my case. this library implements a lexer and parser to analyze filter syntax. 
-
-Because this library is almost refactored and rewritten, this package renamed as `videni/blade-filters`, but the namespace still keeps it is.
 
 ## Installation
 
@@ -42,61 +43,7 @@ Because this library is almost refactored and rewritten, this package renamed as
 composer require "videni/blade-filters": "^1.0"
 ```
 
-## Named filter arguments
 
-```
-{{ 'a wonderful place' | slug:separator='_', language='en' }}
-```
-
-For slug filter which provided by `\Illuminate\Support\Str`, the first argument is the value being filtered, the second argument would be the `separator`, the third would be `language`, if a argument name doesn't not exists in the slug method, it will be simply ignored.
-
-
-## Pass variables to filter arguments
-
-```
-{{ "hello world" | slug:separator=$separator }}
-```
-
-the `$separator` will be captured where the filter runs.
-
-## Add simple custom filter
-
-For the simplest case, you can add custom filter  as following
-```
-  \Pine\BladeFilters\BladeFilters::macro('script_tag', function (string $asset,$type = 'text/javascript', $async = null, $defer = null) {
-      // Your code here
-    }
-)
-```
-
-## Filter provider
-
-You may not need this if you just want to add [simple custom filters](#add-simple-custom-filter). 
-
-The provided `StaticMacroableFilterProvider` class allows you to hook static methods and `Laravel Macroable` as Blade filters. usually, you don't need to add a `static macroable` class like  `\Illuminate\Support\Str` and `\Pine\BladeFilters\BladeFilters`, you can use `StaticMacroableFilterProvider` directly, if you want to support other third party utilities class. for example,
-
-```
-$registry = new BladeFilterProviderRegistry();
-$registry
-    ->register(new StaticMacroableFilterProvider(\Illuminate\Support\Str::class), 10);
-```
-
-Uncommonly, your filter may be context aware, let's assume a context like this:
-
-A filter named `cdn_url` which generates url for an asset. 
-```php
-cdn_url('assets/carousel.css');
-```
-the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter, which the user doesn't need to worry about. you can always pass a variable to your filter as an argument following [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone), this is the difference between `filter context` and `filter argument`. 
-
-filter context is a string which could be a full qualified class name or a variable in Blade view, it must have method access operator( ->, :: ) suffix, an example could be the  `getFilterContext` method of class `\Pine\BladeFilters\FilterProvider\StaticMacroableFilterProvider`.
-
-```
-    public function getFilterContext(): string
-    {
-        return sprintf('%s::', $this->class);
-    }
-```
 ## Using the filters
 
 You can use the filters in any of your blade templates. 
@@ -106,6 +53,14 @@ You can use the filters in any of your blade templates.
 ```php
 {{ 'john' | ucfirst }} // John
 ```
+
+#### Named filter arguments
+
+```
+{{ 'a wonderful place' | slug:separator='_', language='en' }}
+```
+
+For slug filter which provided by `\Illuminate\Support\Str`, the first argument is the value being filtered, the second argument would be the `separator`, the third would be `language`, if a argument name doesn't not exists in the slug method, it will be simply ignored.
 
 #### Chained usage:
 
@@ -212,6 +167,48 @@ The package comes with a few built-in filters, also the default Laravel string m
 - [Str::start()](https://laravel.com/docs/5.8/helpers#method-str-start)
 - [Str::studly()](https://laravel.com/docs/5.8/helpers#method-str-studly)
 - [Str::title()](https://laravel.com/docs/5.8/helpers#method-str-title)
+
+## Custom filter
+
+### Add simple custom filter
+
+For the simplest case, you can add custom filter  as following
+```
+  \Pine\BladeFilters\BladeFilters::macro('script_tag', function (string $asset,$type = 'text/javascript', $async = null, $defer = null) {
+      // Your code here
+    }
+)
+```
+
+### Filter provider
+
+You may not need this if you just want to add [simple custom filters](#add-simple-custom-filter). 
+
+The provided `StaticMacroableFilterProvider` class allows you to hook static methods and `Laravel Macroable` as Blade filters. usually, you don't need to add a `static macroable` class like  `\Illuminate\Support\Str` and `\Pine\BladeFilters\BladeFilters`, you can use `StaticMacroableFilterProvider` directly, if you want to support other third party utilities class. for example,
+
+```
+$registry = new BladeFilterProviderRegistry();
+$registry
+    ->register(new StaticMacroableFilterProvider(\Illuminate\Support\Str::class), 10);
+```
+
+Uncommonly, your filter may be context aware, let's assume a context like this:
+
+A filter named `cdn_url` which generates url for an asset. 
+```php
+cdn_url('assets/carousel.css');
+```
+the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter, which the user doesn't need to worry about. you can always pass a variable to your filter as an argument following [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone), this is the difference between `filter context` and `filter argument`. 
+
+filter context is a string which could be a full qualified class name or a variable in Blade view, it must have method access operator( ->, :: ) suffix, an example could be the  `getFilterContext` method of class `\Pine\BladeFilters\FilterProvider\StaticMacroableFilterProvider`.
+
+```
+    public function getFilterContext(): string
+    {
+        return sprintf('%s::', $this->class);
+    }
+```
+
 
 ## Testing
 
