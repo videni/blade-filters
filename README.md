@@ -21,6 +21,9 @@ Because this library is almost refactored and rewritten, this package renamed as
       - [Passing non-static values:](#passing-non-static-values)
       - [Passing variables as filter parameters:](#passing-variables-as-filter-parameters)
       - [Built-in Laravel functionality:](#built-in-laravel-functionality)
+    - [Limitations](#limitations)
+      - [Echos](#echos)
+      - [Bitwise operators](#bitwise-operators)
   - [The Filters](#the-filters)
     - [About the filters](#about-the-filters)
     - [The available filters](#the-available-filters)
@@ -93,6 +96,23 @@ $currency = 'HUF'
 {{ 'foo_bar' | studly }} // FooBar
 ```
 
+### Limitations
+
+#### Echos
+
+Laravel supports three types of echos. Raw – `{!!  !!}`, regular – `{{ }}` and escaped (legacy) – `{{{ }}}`.
+Filters can be used **only with regular** echos. Also, filters **cannot be used in blade directives directly**.
+
+> Why? Raw should be as it is. Forced escaping should be escaped only, without modification.
+
+#### Bitwise operators
+
+Bitwise operators are allowed, but they must be wrapped in parentheses,
+since they are using the same "pipe operator".
+
+```php
+{{ ('a' | 'b') | upper }} // C
+```
 
 ## The Filters
 
@@ -184,7 +204,7 @@ For the simplest case, you can add custom filter  as following
 
 You may not need this if you just want to add [simple custom filters](#add-simple-custom-filter). 
 
-The provided `StaticMacroableFilterProvider` class allows you to hook static methods and `Laravel Macroable` as Blade filters. usually, you don't need to add a `static macroable` class like  `\Illuminate\Support\Str` and `\Pine\BladeFilters\BladeFilters`, you can use `StaticMacroableFilterProvider` directly, if you want to support other third party utilities class. for example,
+The provided `StaticMacroableFilterProvider` class allows you to hook static methods and `Laravel Macroable` as Blade filters. usually, you don't need to add a `static macroable` class like  `\Illuminate\Support\Str` and `\Pine\BladeFilters\BladeFilters`, you can use `StaticMacroableFilterProvider` directly, if you want to support other third party utility classes. for example,
 
 ```
 $registry = new BladeFilterProviderRegistry();
