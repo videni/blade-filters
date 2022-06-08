@@ -13,7 +13,23 @@ Laravel Blade Filters
   - [Pass variables to filter arguments](#pass-variables-to-filter-arguments)
   - [Add simple custom filter](#add-simple-custom-filter)
   - [Filter provider](#filter-provider)
-  - [Internal filters](#internal-filters)
+  - [Using the filters](#using-the-filters)
+      - [Regular usage:](#regular-usage)
+      - [Chained usage:](#chained-usage)
+      - [Passing non-static values:](#passing-non-static-values)
+      - [Passing variables as filter parameters:](#passing-variables-as-filter-parameters)
+      - [Built-in Laravel functionality:](#built-in-laravel-functionality)
+  - [The Filters](#the-filters)
+    - [About the filters](#about-the-filters)
+    - [The available filters](#the-available-filters)
+      - [Currency](#currency)
+      - [Date](#date)
+      - [Lcfirst](#lcfirst)
+      - [Reverse](#reverse)
+      - [Substr](#substr)
+      - [Trim](#trim)
+      - [Ucfirst](#ucfirst)
+    - [Supported built-in Str functions](#supported-built-in-str-functions)
   - [Testing](#testing)
 
 Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with lots of improvements, the original doesn't support named arguments and filter context, which are essential in my case. this library implements a lexer and parser to analyze filter syntax. 
@@ -81,10 +97,121 @@ filter context is a string which could be a full qualified class name or a varia
         return sprintf('%s::', $this->class);
     }
 ```
-## Internal filters
+## Using the filters
 
-all static methods from `Pine\BladeFilters\BladeFilters` and `\Illuminate\Support\Str` are provided as blade filters, it is quite simple, please check its source code for reference.
+You can use the filters in any of your blade templates. 
 
+#### Regular usage:
+
+```php
+{{ 'john' | ucfirst }} // John
+```
+
+#### Chained usage:
+
+```php
+{{ 'john' | ucfirst | substr:start=0,length=1 }} // J
+{{ '1999-12-31' | date:format='Y/m/d' }} // 1999/12/31
+```
+
+#### Passing non-static values:
+
+```php
+{{ $name | ucfirst | substr:start=0,length=1 }}
+{{ $user['name'] | ucfirst | substr:start=0,length=1 }}
+{{ $currentUser->name | ucfirst | substr:start=0,length=1 }}
+{{ getName() | ucfirst | substr:start=0,length=1 }}
+```
+
+#### Passing variables as filter parameters:
+
+```php
+$currency = 'HUF'
+{{ '12.75' | currency:currency=$currency }} // HUF 12.75
+```
+
+#### Built-in Laravel functionality:
+
+```php
+{{ 'This is a title' | slug }} // this-is-a-title
+{{ 'This is a title' | title }} // This Is A Title
+{{ 'foo_bar' | studly }} // FooBar
+```
+
+
+## The Filters
+
+### About the filters
+
+All static methods from `Pine\BladeFilters\BladeFilters` and `\Illuminate\Support\Str` are provided as blade filters, it is quite simple, you can also check its source code for reference.
+
+### The available filters
+
+The package comes with a few built-in filters, also the default Laravel string methods can be used.
+
+#### Currency
+
+```php
+{{ '17.99' | currency:currency='CHF' }} // CHF 17.99
+{{ '17.99' | currency:currency='€',left=false }} // 17.99 €
+```
+
+> Passing `false` as the second parameter will align the symbol to the right.
+#### Date
+
+```php
+{{ '1999/12/31' | date }} // 1999-12-31
+{{ '1999/12/31' | date:format='F j, Y' }} // December 31, 1999
+```
+
+#### Lcfirst
+
+```php
+{{ 'Árpamaláta' | lcfirst }} // árpamaláta
+```
+
+> Unlike PHP's default `lcfirst()`, this filter works with multi-byte strings as well.
+#### Reverse
+
+```php
+{{ 'ABCDEF' | reverse }} //FEDCBA
+```
+
+#### Substr
+
+```php
+{{ 'My name is' | substr:start=0,length=2 }} // My
+{{ 'My name is' | substr:start=3 }} // name is
+```
+
+#### Trim
+
+```php
+{{ '   trim me    ' | trim }} // trim me
+```
+
+#### Ucfirst
+
+```php
+{{ 'árpamaláta' | ucfirst }} // Árpamaláta
+```
+
+> Unlike PHP's default `ucfirst()`, this filter works with multi-byte strings as well.
+### Supported built-in Str functions
+
+- [Str::after()](https://laravel.com/docs/5.8/helpers#method-str-after)
+- [Str::before()](https://laravel.com/docs/5.8/helpers#method-str-before)
+- [Str::camel()](https://laravel.com/docs/5.8/helpers#method-str-camel)
+- [Str::finish()](https://laravel.com/docs/5.8/helpers#method-str-finish)
+- [Str::kebab()](https://laravel.com/docs/5.8/helpers#method-str-kebab)
+- [Str::limit()](https://laravel.com/docs/5.8/helpers#method-str-limit)
+- [Str::plural()](https://laravel.com/docs/5.8/helpers#method-str-plural)
+- [Str::singular()](https://laravel.com/docs/5.8/helpers#method-str-singular)
+- [Str::slug()](https://laravel.com/docs/5.8/helpers#method-str-slug)
+- [Str::snake()](https://laravel.com/docs/5.8/helpers#method-str-snake)
+- [Str::start()](https://laravel.com/docs/5.8/helpers#method-str-start)
+- [Str::studly()](https://laravel.com/docs/5.8/helpers#method-str-studly)
+- [Str::title()](https://laravel.com/docs/5.8/helpers#method-str-title)
 
 ## Testing
 
