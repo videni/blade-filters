@@ -47,7 +47,7 @@ class StaticMacroableFilterProvider implements FilterProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function getContainer(): string
+    public function getFilterContext(): string
     {
         return sprintf('%s::', $this->class);
     }

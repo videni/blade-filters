@@ -22,9 +22,11 @@ interface FilterProviderInterface
     public function processFilterArguments(string $filterName, array $filterArguments): string;
 
     /**
-     * The stringified container for the filter to run
+     * A string represents filter context where a filter to run, which 
+     * could be a full qualified class name or a variable in Blade view, 
+     * it must have method access operator(->, ::) suffix.
      *
      * @return string
      */
-    public function getContainer(): string;
+    public function getFilterContext(): string;
 }

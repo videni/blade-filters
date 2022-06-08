@@ -10,9 +10,9 @@ Laravel Blade Filters
   - [Internal filters](#internal-filters)
   - [Testing](#testing)
 
-Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with huge improvements, the original doesn't support named arguments and filter context, which are essential in my case. this library implements a custom lexer and parser to analyze filter syntax. 
+Originated from [`conedevelopment/blade-filters`](https://github.com/conedevelopment/blade-filters), but with lots of improvements, the original doesn't support named arguments and filter context, which are essential in my case. this library implements a lexer and parser to analyze filter syntax. 
 
-Because this library is almost refactored, this package renamed as `videni/blade-filters`, but the namespace still keeps it is.
+Because this library is almost refactored and rewritten, this package renamed as `videni/blade-filters`, but the namespace still keeps it is.
 
 ## Installation
 
@@ -26,7 +26,7 @@ composer require "videni/blade-filters": "^1.0"
 {{ 'a wonderful place' | slug:separator='_', language='en' }}
 ```
 
-For slug filter which provided by `\Illuminate\Support\Str`, the first argument is the value being filtered, the second argument would be the `separator`, the third would be `language`, if a argument name doesn't not exists in the slug method of `\Illuminate\Support\Str`, it will be simply ignored.
+For slug filter which provided by `\Illuminate\Support\Str`, the first argument is the value being filtered, the second argument would be the `separator`, the third would be `language`, if a argument name doesn't not exists in the slug method, it will be simply ignored.
 
 
 ## Pass variables to filter arguments
@@ -61,19 +61,28 @@ $registry
 
 Uncommonly, your filter may be context aware, let's assume a context like this:
 
-A filter named `cdn_url` which generated url for an asset. 
+A filter named `cdn_url` which generates url for an asset. 
 ```php
 cdn_url('assets/carousel.css');
 ```
 the domain of the CDN will change depending on the context where the filter run, the context itself is not part of the API of our filter, which the user doesn't need to worry about. you can always pass a variable to your filter as an argument following [Pass variables to filter arguments](#pass-variables-to-filter-arguments), however, the variable must be filled by the filter's user(you or someone), this is the difference between `filter context` and `filter argument`. 
 
+filter context is a string which could be a full qualified class name or a variable in Blade view, it must have method access operator( ->, :: ) suffix, an example could be the  `getFilterContext` method of class `\Pine\BladeFilters\FilterProvider\StaticMacroableFilterProvider`.
+
+```
+    public function getFilterContext(): string
+    {
+        return sprintf('%s::', $this->class);
+    }
+```
 ## Internal filters
 
-all static methods from `Pine\BladeFilters\BladeFilters` and `\Illuminate\Support\Str` are provided as blade filters, it is quite simple, please check its source code reference.
+all static methods from `Pine\BladeFilters\BladeFilters` and `\Illuminate\Support\Str` are provided as blade filters, it is quite simple, please check its source code for reference.
 
 
 ## Testing
 
 ```
-phpunit
+composer install 
+./vendor/bin/phpunit
 ```

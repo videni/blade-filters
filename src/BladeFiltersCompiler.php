@@ -50,7 +50,7 @@ class BladeFiltersCompiler
         $first = array_shift($filters);
 
         $wrapped = sprintf(
-            $this->getContainer($first['name']).'%s(%s,%s)',
+            $this->getFilterContext($first['name']).'%s(%s,%s)',
             $first['name'],
             $prefiltered,
             $this->stringifyArguments($first['name'], $first['arguments'])
@@ -61,7 +61,7 @@ class BladeFiltersCompiler
             $arguments = $filter['arguments'];
 
             $wrapped = sprintf(
-                $this->getContainer($filterName).'%s(%s,%s)',
+                $this->getFilterContext($filterName).'%s(%s,%s)',
                 $filterName,
                 $wrapped,
                 $this->stringifyArguments($filterName, $arguments)
@@ -82,11 +82,11 @@ class BladeFiltersCompiler
         throw new MissingBladeFilterException(sprintf('Blade filter %s not exists', $filterName));
     }
 
-    private function getContainer(string $filterName): string
+    private function getFilterContext(string $filterName): string
     {
         foreach($this->registry->all() as $filterProvider) {
             if ($filterProvider->hasFilter($filterName)) {
-                return $filterProvider->getContainer();
+                return $filterProvider->getFilterContext();
             }
         }
 
