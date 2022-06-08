@@ -1,6 +1,12 @@
 Laravel Blade Filters
 ======================
 
+![Laravel](https://img.shields.io/badge/Laravel-6--9-reds?style=flat&logo=laravel)
+![php](https://img.shields.io/badge/php-%5E7.2.5%7C%5E8.0-green?style=flat&logo=php)
+[![issues](https://img.shields.io/github/issues/videni/blade-filters)](https://github.com/videni/blade-filters/issues)
+[![stars](https://img.shields.io/github/stars/videni/blade-filters)](https://github.com/videni/blade-filters/stargazers)
+[![downloads](https://img.shields.io/packagist/dt/videni/blade-filters?style=plastic&style=flat&logo=Packagist)](https://packagist.org/packages/videni/blade-filters)
+
 - [Laravel Blade Filters](#laravel-blade-filters)
   - [Installation](#installation)
   - [Named filter arguments](#named-filter-arguments)
