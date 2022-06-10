@@ -57,5 +57,17 @@ class BladeFilterParserTest extends TestCase
         $parser = new BladeFilterParser();
 
         $parser->parse($input);
-   }
+    }
+
+    /** @test */
+    public function test_bool_or_null_argument_value()
+    {
+        $input = '"css/carousel.css" | stylesheet_tag:media=null,preload=true';
+
+        $parser = new BladeFilterParser();
+
+        $filter = $parser->parse($input);
+
+        $this->assertEquals($filter['filters'][0]['arguments']['media'], "null");
+    }
 }

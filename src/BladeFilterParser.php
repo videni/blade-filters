@@ -6,6 +6,16 @@ use Pine\BladeFilters\Exceptions\SyntaxException;
 
 class BladeFilterParser
 {
+    protected $validArgumentValueTypes = [
+        BladeFilterLexer::T_INTEGER, 
+        BladeFilterLexer::T_STRING,
+        BladeFilterLexer::T_FLOAT,
+        BladeFilterLexer::T_VARIABLE_EXPRESSION,
+        BladeFilterLexer::T_TRUE,
+        BladeFilterLexer::T_FALSE,
+        BladeFilterLexer::T_NULL,
+    ];
+
     private BladeFilterLexer $lexer;
 
     private $input;
@@ -148,13 +158,7 @@ class BladeFilterParser
         $this->syntaxErrorIf(null === $token,
             sprintf('No value specified for argument "%s"',$argumentName)
         );
-        $isValidArgumentValue = $this->lexer->isNextTokenAny([
-            BladeFilterLexer::T_INTEGER, 
-            BladeFilterLexer::T_STRING,
-            BladeFilterLexer::T_FLOAT,
-            BladeFilterLexer::T_VARIABLE_EXPRESSION,
-        ]);
-
+        $isValidArgumentValue = $this->lexer->isNextTokenAny($this->validArgumentValueTypes);
         $this->syntaxErrorIf(!$isValidArgumentValue,
             sprintf(' The value of filter argument "%s" is not valid, it supposed to be string, integer, float or variable, got %s', 
             $argumentName,

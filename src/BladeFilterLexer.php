@@ -26,6 +26,16 @@ class BladeFilterLexer extends AbstractLexer
     public const T_COLON = 103;
     public const T_COMMA = 104;
     public const T_PIPE = 105;
+    public const T_TRUE                = 106;
+    public const T_NULL                = 107;
+    public const T_FALSE               = 108;
+
+    /** @var array<string, int> */
+    protected $specials = [
+        'true'  => self::T_TRUE,
+        'false' => self::T_FALSE,
+        'null'  => self::T_NULL,
+    ];
 
     /**
      * @inheritdoc
@@ -69,7 +79,11 @@ class BladeFilterLexer extends AbstractLexer
      */
     protected function getType(&$value)
     {
-       
+        $lowerValue = strtolower($value);
+        if (isset($this->specials[$lowerValue])) {
+            return $this->specials[$lowerValue];
+        }
+
         switch (true) {
             /**
              * Recognize numeric values
