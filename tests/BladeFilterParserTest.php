@@ -40,13 +40,22 @@ class BladeFilterParserTest extends TestCase
      {
         $this->expectException(SyntaxException::class);
 
-         $input = '"css/carousel.css" | theme_asset_url:';
+        $input = '"css/carousel.css" | theme_asset_url:';
 
-         $parser = new BladeFilterParser();
+        $parser = new BladeFilterParser();
 
-         $filter = $parser->parse($input);
-
-         $this->assertEquals($filter['prefiltered'], '"css/carousel.css"');
-         $this->assertTrue(count($filter['filters']) == 1);
+        $parser->parse($input);
     }
+
+    /** @test */
+    public function test_invalid_filter_argument_name()
+    {
+       $this->expectException(SyntaxException::class);
+
+        $input = '"css/carousel.css" | "t"';
+
+        $parser = new BladeFilterParser();
+
+        $parser->parse($input);
+   }
 }
