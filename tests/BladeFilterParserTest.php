@@ -48,5 +48,5 @@ class BladeFilterParserTest extends TestCase
 
          $this->assertEquals($filter['prefiltered'], '"css/carousel.css"');
          $this->assertTrue(count($filter['filters']) == 1);
-     }
+    }
 }

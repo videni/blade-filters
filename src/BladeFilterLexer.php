@@ -10,11 +10,12 @@ class BladeFilterLexer extends AbstractLexer
      * All tokens that are not valid identifiers must be < 100
      */
     public const T_NONE = 1;
-    public const T_STRING = 2;
-    public const T_VARIABLE = 7;
-    public const T_LITERAL = 8;
-    public const T_INTEGER = 9;
-    public const T_FLOAT = 10;
+    public const T_VARIABLE_NAME = 2;
+    public const T_STRING = 3;
+    public const T_QUOTE = 4;
+    public const T_INTEGER = 5;
+    public const T_FLOAT = 6;
+    public const T_VARIABLE_EXPRESSION = 7;
 
     /**
      * All tokens that are also identifiers should be >= 100,
@@ -32,20 +33,23 @@ class BladeFilterLexer extends AbstractLexer
     protected function getCatchablePatterns()
     {
         return [
+            '\'(?:\\\\\'|.)*?\'',
+            // Single quoted string
+
+            '"(?:\\\\\"|.)*?"',
+            // Double quoted string
+
             '\(.*?\)',
-            //Expression
+            // Expression
 
-            '[a-z_\\\][a-z0-9_]*[a-z0-9_]{1}',
-            // safe string
-
-            "[\'\"](?:[^'\"]|'')*[\'\"]",
-            // single or double quoted string
+            '[a-z_][a-z0-9_]*',
+            // Safe string, filter name, filter argument name must be safe string
 
             '(?:[0-9]+(?:[\.][0-9]+)*)(?:e[+-]?[0-9]+)?',
-            //integer, float
+            // Integer, float
 
             '\$[a-z_][a-z0-9_]*(?:->[a-z_][a-z0-9_]*)*',
-            // a variable
+            // A variable expression, 变量表达式
         ];
     }
 
@@ -57,7 +61,7 @@ class BladeFilterLexer extends AbstractLexer
         /**
          * whitespace
          */
-        return ['\s+'];
+        return ['\s+', '(.)'];
     }
 
      /**
@@ -65,6 +69,7 @@ class BladeFilterLexer extends AbstractLexer
      */
     protected function getType(&$value)
     {
+       
         switch (true) {
             /**
              * Recognize numeric values
@@ -81,14 +86,21 @@ class BladeFilterLexer extends AbstractLexer
              */
             case ($value[0] === '\'' || $value[0] == '"'):
                 return self::T_STRING;
+            
+             /**
+             * Recognize variable name, can be valid filter name, filter argument_name
+             */    
+            case preg_match('/^[a-z_][a-z0-9_]*/', $value):
+                return self::T_VARIABLE_NAME;
+            
             /**
              *  Recognize variables
              */
-            case ($value[0] === '$'):
-                return self::T_VARIABLE;
+            case preg_match('/^\$[a-z_][a-z0-9_]*(?:->[a-z_][a-z0-9_]*)*/', $value):
+                return self::T_VARIABLE_EXPRESSION;
 
             /**
-             * Recognize symbols
+             * Recognize identifiers
              */
             case ($value === '|'):
                 return self::T_PIPE;
@@ -98,8 +110,9 @@ class BladeFilterLexer extends AbstractLexer
                 return self::T_COMMA;
             case ($value === '='):
                 return self::T_EQUALS;
+                
             default:
-                return self::T_LITERAL;;
+                return self::T_NONE;;
         }
     }
 }

@@ -26,16 +26,17 @@ class BladeFilterParser
 
         $this->lexer->moveNext();
 
-        $prefiltered = $this->collectPreFiltered($input);
+        $preFiltered = $this->collectPreFiltered($input);
 
         $filters = [];
         while ($this->lexer->isNextToken(BladeFilterLexer::T_PIPE)) {
-            $this->lexer->moveNext(); //skip pipe
-           $this->Filters($filters);
+            $this->lexer->moveNext(); // Skip pipe
+
+            $this->Filters($filters);
         }
 
         return [
-            'prefiltered' => $prefiltered,
+            'prefiltered' => $preFiltered,
             'filters' => $filters
         ];
     }
@@ -54,25 +55,23 @@ class BladeFilterParser
             return $input;
         }
 
-        $prefiltered = trim($this->lexer->getInputUntilPosition($this->lexer->lookahead['position']));
-        if ($prefiltered && $prefiltered[0] === '(') {
-            $prefiltered = trim($prefiltered, '()');
+        $preFiltered = trim($this->lexer->getInputUntilPosition($this->lexer->lookahead['position']));
+        if ($preFiltered && $preFiltered[0] === '(') {
+            $preFiltered = trim($preFiltered, '()');
         }
 
-        return $prefiltered;
+        return $preFiltered;
     }
 
     private function Filters(&$filters)
     {
-        $this->lexer->moveNext();
-
-        $this->syntaxErrorIf(null === $this->lexer->token, sprintf('No filter found'));
+        $this->syntaxErrorIf(null === $this->lexer->lookahead, sprintf('No filter found'));
+        $this->match(BladeFilterLexer::T_VARIABLE_NAME, sprintf('Filter name is not valid, "%s"', $this->lexer->lookahead['value']));
 
         $filter = [];
         $filter['name'] = $this->lexer->token['value'];
         $filterArguments = [];
         $filter['arguments'] = &$filterArguments;
-
         $filters[] = $filter;
 
         $next = $this->lexer->lookahead;
@@ -81,7 +80,7 @@ class BladeFilterParser
         }
 
         if($next['type'] == BladeFilterLexer::T_COLON) {
-            $this->lexer->moveNext();
+            $this->lexer->moveNext(); //Skip to colon
 
             list($argName, $argValue) = $this->collectFilterArgument();
             $filterArguments[$argName] = $argValue;
@@ -97,7 +96,7 @@ class BladeFilterParser
                     $this->Filters($filters);
                 } else if (null !== $this->lexer->token) {
                     $this->syntaxErrorIf(true,
-                        sprintf('It supposed to be another argument, or filter, but %s given', $this->lexer->token['value'],
+                        sprintf('It supposed to be another argument, or filter, but "%s" given', $this->lexer->token['value'],
                         )
                     );
                 }
@@ -105,12 +104,12 @@ class BladeFilterParser
                 $this->lexer->moveNext();
             }
         } else if ($next['type'] == BladeFilterLexer::T_PIPE) {
-            $this->lexer->moveNext();
+            $this->lexer->moveNext(); //Skip to pipe
 
             $this->Filters($filters);
         } else if (null !== $next){
             $this->syntaxErrorIf(true, sprintf(
-                'It supposed to be either arguments after filter or another filter, but %s given',
+                'It supposed to be either arguments after filter or another filter, but "%s" given',
                 $next['value']
                 ));
         }
@@ -123,39 +122,47 @@ class BladeFilterParser
      */
     private function collectFilterArgument(): array
     {
-        $this->lexer->moveNext();
-
         // Argument name
-        $token = $this->lexer->token;
-        $this->syntaxErrorIf(null === $token,
-            sprintf('No arguments found after ":"')
+        $next = $this->lexer->lookahead;
+        $this->syntaxErrorIf(null === $next,
+            sprintf('No arguments found after %s', $this->lexer->token['value'])
         );
-        $this->syntaxErrorIf(BladeFilterLexer::T_PIPE === $token['type'],
+        $this->syntaxErrorIf(BladeFilterLexer::T_PIPE === $next['type'],
             sprintf('No argument found')
         );
-        $this->syntaxErrorIf(BladeFilterLexer::T_LITERAL !== $token['type'],
-            sprintf('The argument name must be literal, however %s given, for filter %s',
-                $token['value'],
-                $this->input,
-            )
+        $this->syntaxErrorIf(BladeFilterLexer::T_VARIABLE_NAME !== $next['type'],
+            sprintf('The argument name must be literal, however "%s" given',$next['value'])
         );
-        $argumentName = $token['value'];
+
+        $this->lexer->moveNext();
+        $argumentName = $this->lexer->token['value'];
 
         // Equal sign
         $this->match(
             BladeFilterLexer::T_EQUALS,
-            sprintf('No equal sign found after argument %s',$argumentName)
+            sprintf('No equal sign found after argument "%s"',$argumentName)
         );
 
         // Argument value
-        $this->lexer->moveNext();
-        $token = $this->lexer->token;
+        $token = $this->lexer->lookahead;
         $this->syntaxErrorIf(null === $token,
-            sprintf('No value specified for argument %s',$argumentName)
+            sprintf('No value specified for argument "%s"',$argumentName)
         );
-        $argumentValue = $token['value'];
+        $isValidArgumentValue = $this->lexer->isNextTokenAny([
+            BladeFilterLexer::T_INTEGER, 
+            BladeFilterLexer::T_STRING,
+            BladeFilterLexer::T_FLOAT,
+            BladeFilterLexer::T_VARIABLE_EXPRESSION,
+        ]);
 
-        return [$argumentName, $argumentValue];
+        $this->syntaxErrorIf(!$isValidArgumentValue,
+            sprintf(' The value of filter argument "%s" is not valid, it supposed to be string, integer, float or variable, got %s', 
+            $argumentName,
+            $token['value']
+        ));
+        $this->lexer->moveNext();
+
+        return [$argumentName,  $token['value']];
     }
 
     private function syntaxErrorIf(bool $predicate, string $errMessage, ?array $token = null)
@@ -163,7 +170,7 @@ class BladeFilterParser
         $errMessage = sprintf('%s for filter "%s"', $errMessage, $this->input);
 
         if ($token === null) {
-            $token = $this->lexer->token;
+            $token = $this->lexer->lookahead;
         }
         if (null !== $token) {
             $errMessage = sprintf('%s at position %s',$errMessage, $token['position'] );
@@ -176,8 +183,8 @@ class BladeFilterParser
 
     private function match(int $token, $message): bool
     {
-        if (! $this->lexer->isNextToken($token)) {
-            throw $this->syntaxErrorIf(true, $this->lexer->getLiteral($token), $message);
+        if (!$this->lexer->isNextToken($token)) {
+            throw $this->syntaxErrorIf(true, $message);
         }
 
         return $this->lexer->moveNext();
