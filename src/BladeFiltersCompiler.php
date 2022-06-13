@@ -38,6 +38,10 @@ class BladeFiltersCompiler
      */
     protected function compileFilters($value)
     {
+        if (! preg_match('/(?=(?:[^\'\"\`)]*([\'\"\`])[^\'\"\`]*\1)*[^\'\"\`)]*$)(\|.*)/u', $value, $matches)) {
+            return $value;
+        }
+
         $filterExpression = $this->parser->parse($value);
         if (empty($filterExpression['filters'])) {
             return $value;
